@@ -45,24 +45,33 @@ function mostrarAlerta(mensaje) {
 
 }
 
-function buscarImagenes() {
+async function buscarImagenes() {
 
     const termino = document.querySelector('#termino').value;
 
     const key = '19963715-4f70db65d59908dc7a1a2b103';
     const url = `https://pixabay.com/api/?key=${key}&q=${termino}&per_page=${registroPorPagina}&page=${paginaActual}`;
 
-    fetch(url)
-        .then(respuesta => respuesta.json())
-        .then(resultado => {
-            totalPaginas = calcularPaginas(resultado.totalHits);
-            mostrarImagenes(resultado.hits);
-        })
+    // fetch(url)
+    //     .then(respuesta => respuesta.json())
+    //     .then(resultado => {
+    //         totalPaginas = calcularPaginas(resultado.totalHits);
+    //         mostrarImagenes(resultado.hits);
+    //     })
+
+    try {
+        const respuesta = await fetch(url);
+        const resultado = await respuesta.json();
+        totalPaginas = calcularPaginas(resultado.totalHits);
+        mostrarImagenes(resultado.hits);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 // Generador que va a registrar la cantidad de elementos de acuerdo a las paginas
-function *crearPaginador(total) {
-    for(let i = 1; i <= total; i++) {
+function* crearPaginador(total) {
+    for (let i = 1; i <= total; i++) {
         yield i;
     }
 }
@@ -100,7 +109,7 @@ function mostrarImagenes(imagenes) {
     });
 
     // Limpiando el paginador previo
-    while(paginacionDiv.firstChild) {
+    while (paginacionDiv.firstChild) {
         paginacionDiv.removeChild(paginacionDiv.firstChild);
     }
 
@@ -110,9 +119,9 @@ function mostrarImagenes(imagenes) {
 
 function imprimirPaginador() {
     iterador = crearPaginador(totalPaginas);
-    while(true) {
-        const {value, done} = iterador.next();
-        if(done) return;
+    while (true) {
+        const { value, done } = iterador.next();
+        if (done) return;
 
         // En caso contrario a la condicion anterior, genera un boton por cada elemento en el generador
         const boton = document.createElement('A');
